@@ -1,17 +1,10 @@
-# projectfunkopops
+# 📦 PopTracker: Coleção de Funko Pops
 
-A new Flutter project.
+Um aplicativo mobile construído em **Flutter** para gerenciar sua coleção pessoal de Funko Pops. 
 
-## Getting Started
+Este projeto está em sua **fase inicial de desenvolvimento** e tem como objetivo implementar um sistema completo de gerenciamento (CRUD) consumindo uma API RESTful simulada via **MockAPI.io**.
 
-This project is a starting point for a Flutter application.
+## 🛠 Tecnologias
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* **Framework:** [Flutter](https://flutter.dev/) (Dart)
+* **Backend:** MockAPI.io (API simulada)
