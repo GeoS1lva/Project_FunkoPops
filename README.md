@@ -8,3 +8,5 @@ Este projeto está em sua **fase inicial de desenvolvimento** e tem como objetiv
 
 * **Framework:** [Flutter](https://flutter.dev/) (Dart)
 * **Backend:** MockAPI.io (API simulada)
+
+**Projeto da matéria: PROGRAMAÇÃO PARA DISPOSITIVOS MÓVEIS**
