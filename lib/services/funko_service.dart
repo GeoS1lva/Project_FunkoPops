@@ -26,4 +26,41 @@ class FunkoService {
       throw Exception('Erro de conexão: $e');
     }
   }
+
+  Future<List<FunkoModel>> fetchAllFunkos() async {
+    try {
+      final response = await http.get(Uri.parse(_apiUrl));
+
+      if (response.statusCode == 200) {
+        List<dynamic> decodedData = json.decode(response.body);
+        return decodedData.map((json) => FunkoModel.fromJson(json)).toList();
+      } else {
+        throw Exception(
+          'Falha ao carregar a listagem. Status: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Erro de conexão na listagem: $e');
+    }
+  }
+
+  Future<bool> createFunko(Map<String, dynamic> funkoData) async {
+    try {
+      final response = await http.post(
+        Uri.parse(_apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(funkoData),
+      );
+
+      if (response.statusCode == 201) {
+        return true;
+      } else {
+        print('Erro ao cadastrar: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Erro de conexão: $e');
+      return false;
+    }
+  }
 }
