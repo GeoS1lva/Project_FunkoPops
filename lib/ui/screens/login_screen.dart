@@ -6,6 +6,9 @@ import '../widgets/custom_button.dart';
 import '../widgets/app_logo.dart';
 import '../widgets/custom_label.dart';
 
+import '../../services/auth_service.dart';
+import 'home_screen.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -16,6 +19,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -29,7 +37,53 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void dispose() {
     _controller.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
+  }
+
+  void _handleLogin() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Preencha os dois campos!'),
+          backgroundColor: AppColors.accentRed,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final user = await _authService.login(
+      _emailController.text,
+      _passwordController.text,
+    );
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 500),
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const HomeScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao entrar.'),
+            backgroundColor: AppColors.accentRed,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -60,33 +114,31 @@ class _LoginScreenState extends State<LoginScreen>
                   const SizedBox(height: 40),
 
                   const CustomLabel(text: "Colecionador", isRequired: true),
-                  const CustomInput(hint: "E-mail/CPF"),
+                  CustomInput(hint: "E-mail/CPF", controller: _emailController),
 
                   const SizedBox(height: 20),
                   const CustomLabel(text: "Senha"),
-                  const CustomInput(
+                  CustomInput(
                     hint: "Senha",
+                    controller: _passwordController,
                     isPassword: true,
                     showSuffix: true,
                   ),
 
                   const SizedBox(height: 35),
 
-                  CustomButton(
-                    text: 'Entrar',
-                    color: AppColors.primaryBlue,
-                    textColor: Colors.white,
-                    onPressed: () {},
-                  ),
-                  const SizedBox(height: 15),
+                  _isLoading
+                      ? const CircularProgressIndicator(
+                          color: AppColors.primaryBlue,
+                        )
+                      : CustomButton(
+                          text: 'Entrar',
+                          color: AppColors.primaryBlue,
+                          textColor: Colors.white,
+                          onPressed: _handleLogin,
+                        ),
 
-                  CustomButton(
-                    text: 'Novo Usuário',
-                    color: AppColors.accentYellow,
-                    textColor: Colors.black,
-                    onPressed: () {},
-                  ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 15),
                 ],
               ),
             ),

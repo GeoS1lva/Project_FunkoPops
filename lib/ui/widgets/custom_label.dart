@@ -4,11 +4,7 @@ class CustomLabel extends StatelessWidget {
   final String text;
   final bool isRequired;
 
-  const CustomLabel({
-    super.key, 
-    required this.text, 
-    this.isRequired = false
-  });
+  const CustomLabel({super.key, required this.text, this.isRequired = false});
 
   @override
   Widget build(BuildContext context) {
@@ -20,13 +16,18 @@ class CustomLabel extends StatelessWidget {
           TextSpan(
             text: text,
             style: const TextStyle(
-              fontWeight: FontWeight.w900, 
-              fontSize: 16, 
-              color: Colors.black87
+              fontWeight: FontWeight.w900,
+              fontSize: 16,
+              color: Colors.black87,
             ),
-            children: isRequired 
-              ? [const TextSpan(text: ' *', style: TextStyle(color: Colors.red))] 
-              : [],
+            children: isRequired
+                ? [
+                    const TextSpan(
+                      text: ' *',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ]
+                : [],
           ),
         ),
       ),
