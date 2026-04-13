@@ -3,10 +3,14 @@ import '../app_colors.dart';
 import '../widgets/category_card.dart';
 import '../widgets/funko_card.dart';
 import '../widgets/custom_bottom_nav.dart';
+import '../widgets/custom_fab_menu.dart';
+import '../widgets/custom_search_bar.dart';
 import '../../models/category_model.dart';
 import '../../models/funko_model.dart';
 import '../../services/category_service.dart';
 import '../../services/funko_service.dart';
+import '../../../ui/screens/funko_listing_screen.dart';
+import '../../../ui/screens/funko_search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -60,7 +64,16 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSearchBar(),
+              CustomSearchBar(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const FunkoSearchScreen(),
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 24),
 
               const Text(
@@ -104,7 +117,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         category: category,
                         backgroundColor: _getCycleColor(index),
                         onTap: () {
-                          print("Filtrar por: ${category.name}");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FunkoListingScreen(
+                                categoryFilter: category.name,
+                              ),
+                            ),
+                          );
                         },
                       );
                     },
@@ -176,59 +196,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+
+      floatingActionButton: const CustomFabMenu(),
+
       bottomNavigationBar: CustomBottomNav(
         onTabSelected: (index) {
           print("Navegar para a aba: $index");
         },
       ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25),
-              border: Border.all(color: AppColors.navIconUnselected, width: 2),
-              gradient: const LinearGradient(
-                stops: [0.0, 0.25, 0.25, 0.50, 0.50, 0.75, 0.75, 1.0],
-                colors: [
-                  AppColors.searchPurple,
-                  AppColors.searchPurple,
-                  AppColors.searchRed,
-                  AppColors.searchRed,
-                  AppColors.searchYellow,
-                  AppColors.searchYellow,
-                  AppColors.searchTeal,
-                  AppColors.searchTeal,
-                ],
-              ),
-            ),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  Icon(Icons.search, color: AppColors.navIconUnselected),
-                  SizedBox(width: 8),
-                  Text(
-                    'Busca',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: AppColors.navIconUnselected,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        const Icon(Icons.tune, color: AppColors.navIconSelected, size: 32),
-      ],
     );
   }
 }

@@ -6,6 +6,7 @@ import '../../models/category_model.dart';
 import '../../services/category_service.dart';
 import '../../services/funko_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../ui/screens/funko_search_screen.dart';
 
 class AddFunkoScreen extends StatefulWidget {
   const AddFunkoScreen({Key? key}) : super(key: key);
@@ -125,7 +126,16 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const CustomSearchBar(),
+                CustomSearchBar(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const FunkoSearchScreen(),
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: 20),
 
                 const Text(
