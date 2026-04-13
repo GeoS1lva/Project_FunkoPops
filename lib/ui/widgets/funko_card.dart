@@ -9,12 +9,12 @@ class FunkoCard extends StatelessWidget {
   final Color badgeColor;
 
   const FunkoCard({
-    Key? key,
+    super.key,
     required this.funko,
     required this.borderColor,
     required this.badgeText,
     required this.badgeColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

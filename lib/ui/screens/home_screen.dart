@@ -13,7 +13,7 @@ import '../../../ui/screens/funko_listing_screen.dart';
 import '../../../ui/screens/funko_search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -68,8 +68,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const FunkoSearchScreen(),
+                    PageRouteBuilder(
+                      transitionDuration: const Duration(milliseconds: 250),
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const FunkoSearchScreen(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                            const curve = Curves.easeOutCubic;
+
+                            var fadeTween = Tween<double>(
+                              begin: 0.0,
+                              end: 1.0,
+                            ).chain(CurveTween(curve: curve));
+                            var scaleTween = Tween<double>(
+                              begin: 0.96,
+                              end: 1.0,
+                            ).chain(CurveTween(curve: curve));
+
+                            return FadeTransition(
+                              opacity: animation.drive(fadeTween),
+                              child: ScaleTransition(
+                                scale: animation.drive(scaleTween),
+                                child: child,
+                              ),
+                            );
+                          },
                     ),
                   );
                 },
@@ -199,11 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       floatingActionButton: const CustomFabMenu(),
 
-      bottomNavigationBar: CustomBottomNav(
-        onTabSelected: (index) {
-          print("Navegar para a aba: $index");
-        },
-      ),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 0),
     );
   }
 }

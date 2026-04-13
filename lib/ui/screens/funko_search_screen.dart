@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../app_colors.dart';
-import '../../../ui/widgets/funko_list_card.dart';
+import '../widgets/funko_list_card.dart';
+import '../widgets/epic_delete_dialog.dart';
 import '../../models/funko_model.dart';
 import '../../services/funko_service.dart';
+import 'update_screen.dart';
 
 class FunkoSearchScreen extends StatefulWidget {
-  const FunkoSearchScreen({Key? key}) : super(key: key);
+  const FunkoSearchScreen({super.key});
 
   @override
   State<FunkoSearchScreen> createState() => _FunkoSearchScreenState();
@@ -45,18 +47,33 @@ class _FunkoSearchScreenState extends State<FunkoSearchScreen> {
   }
 
   void _filterFunkos(String query) {
-    if (query.isEmpty) {
-      setState(() => _filteredFunkos = _allFunkos);
-      return;
-    }
-
-    final lowerCaseQuery = query.toLowerCase();
     setState(() {
-      _filteredFunkos = _allFunkos.where((funko) {
-        return funko.name.toLowerCase().contains(lowerCaseQuery) ||
-            funko.categoryName.toLowerCase().contains(lowerCaseQuery);
-      }).toList();
+      _filteredFunkos = _allFunkos
+          .where((f) => f.name.toLowerCase().contains(query.toLowerCase()))
+          .toList();
     });
+  }
+
+  void _showDeleteDialog(BuildContext context, FunkoModel funko) {
+    EpicDeleteDialog.show(
+      context,
+      funkoName: funko.name,
+      funkoImage: funko.image,
+      onCancel: () => Navigator.pop(context),
+      onConfirm: () async {
+        Navigator.pop(context);
+        bool success = await _funkoService.deleteFunko(funko.id);
+        if (success && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Excluído com sucesso!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          _loadAllFunkos();
+        }
+      },
+    );
   }
 
   Color _getCycleColor(int index) {
@@ -79,73 +96,31 @@ class _FunkoSearchScreenState extends State<FunkoSearchScreen> {
               padding: const EdgeInsets.all(20.0),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.searchTeal.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.searchTeal,
-                          width: 2,
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: AppColors.textDark,
-                        size: 20,
-                      ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: AppColors.textDark,
                     ),
+                    onPressed: () => Navigator.pop(context),
                   ),
-                  const SizedBox(width: 16),
-
                   Expanded(
                     child: Container(
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(25),
-                        border: Border.all(
-                          color: AppColors.navIconUnselected,
-                          width: 2,
-                        ),
-                        gradient: const LinearGradient(
-                          stops: [0.0, 0.25, 0.25, 0.50, 0.50, 0.75, 0.75, 1.0],
-                          colors: [
-                            AppColors.searchPurple,
-                            AppColors.searchPurple,
-                            AppColors.searchRed,
-                            AppColors.searchRed,
-                            AppColors.searchYellow,
-                            AppColors.searchYellow,
-                            AppColors.searchTeal,
-                            AppColors.searchTeal,
-                          ],
-                        ),
+                        border: Border.all(color: AppColors.textDark, width: 2),
+                        color: Colors.white,
                       ),
                       child: TextField(
                         controller: _searchController,
                         autofocus: true,
                         onChanged: _filterFunkos,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: AppColors.textDark,
-                          fontWeight: FontWeight.w500,
-                        ),
                         decoration: const InputDecoration(
-                          hintText: 'Buscar...',
-                          hintStyle: TextStyle(
-                            color: AppColors.navIconUnselected,
-                          ),
+                          hintText: 'Buscar Pop...',
                           border: InputBorder.none,
                           prefixIcon: Icon(
                             Icons.search,
-                            color: AppColors.navIconUnselected,
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 12.0,
+                            color: AppColors.textLight,
                           ),
                         ),
                       ),
@@ -154,7 +129,6 @@ class _FunkoSearchScreenState extends State<FunkoSearchScreen> {
                 ],
               ),
             ),
-
             Expanded(
               child: _isLoading
                   ? const Center(
@@ -163,15 +137,7 @@ class _FunkoSearchScreenState extends State<FunkoSearchScreen> {
                       ),
                     )
                   : _filteredFunkos.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Nenhum Funko encontrado.',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: AppColors.textLight,
-                        ),
-                      ),
-                    )
+                  ? const Center(child: Text('Nenhum Funko encontrado.'))
                   : ListView.builder(
                       padding: const EdgeInsets.only(bottom: 20),
                       itemCount: _filteredFunkos.length,
@@ -181,8 +147,15 @@ class _FunkoSearchScreenState extends State<FunkoSearchScreen> {
                           funko: funko,
                           borderColor: _getCycleColor(index),
                           onEditTap: () {
-                            print("Editar o Pop: ${funko.name}");
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    UpdateScreen(funkoToEdit: funko),
+                              ),
+                            ).then((_) => _loadAllFunkos());
                           },
+                          onDeleteTap: () => _showDeleteDialog(context, funko),
                         );
                       },
                     ),

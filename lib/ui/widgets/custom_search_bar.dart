@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import '../app_colors.dart';
 
 class CustomSearchBar extends StatelessWidget {
-  final VoidCallback? onTap; // NOVO: Permite passar uma ação de clique
+  final VoidCallback? onTap;
 
-  const CustomSearchBar({Key? key, this.onTap}) : super(key: key);
+  const CustomSearchBar({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap, // NOVO: Adicionado aqui
+      onTap: onTap,
       child: Center(
         child: Container(
           height: 50,

@@ -6,60 +6,54 @@ class FunkoListCard extends StatelessWidget {
   final FunkoModel funko;
   final Color borderColor;
   final VoidCallback onEditTap;
+  final VoidCallback onDeleteTap;
 
   const FunkoListCard({
-    Key? key,
+    super.key,
     required this.funko,
     required this.borderColor,
     required this.onEditTap,
-  }) : super(key: key);
+    required this.onDeleteTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-      height: 80,
+      height: 90,
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(color: borderColor, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            offset: const Offset(0, 4),
-            blurRadius: 4,
-          ),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, offset: Offset(2, 4), blurRadius: 0),
         ],
       ),
       child: Row(
         children: [
-          const SizedBox(width: 16),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(100),
+          const SizedBox(width: 12),
+          Hero(
+            tag: 'funko-${funko.id}',
             child: Container(
-              width: 60,
-              height: 60,
-              color: Colors.black87,
-              child: funko.image.isNotEmpty
-                  ? Image.network(
-                      funko.image,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.person_outline,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    )
-                  : const Icon(
-                      Icons.person_outline,
-                      color: Colors.white,
-                      size: 30,
-                    ),
+              width: 65,
+              height: 65,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.black12, width: 1),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(11),
+                child: Image.network(
+                  funko.image,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.toys_outlined),
+                ),
+              ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -70,43 +64,69 @@ class FunkoListCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textDark,
                   ),
                 ),
                 Text(
                   funko.categoryName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.textLight,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
-          GestureDetector(
-            onTap: onEditTap,
-            child: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.borderNeutral, width: 2),
-                color: Colors.transparent,
-              ),
-              child: const Icon(
-                Icons.edit_outlined,
-                color: AppColors.textDark,
-                size: 24,
-              ),
+
+          Padding(
+            padding: const EdgeInsets.only(right: 12.0),
+            child: Row(
+              children: [
+                _buildActionButton(
+                  icon: Icons.edit_note_rounded,
+                  color: AppColors.primaryBlue,
+                  onTap: onEditTap,
+                ),
+                const SizedBox(width: 8),
+                _buildActionButton(
+                  icon: Icons.delete_sweep_rounded,
+                  color: AppColors.accentRed,
+                  onTap: onDeleteTap,
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 16),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.black, width: 2),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              offset: Offset(1, 2),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        child: Icon(icon, color: Colors.white, size: 22),
       ),
     );
   }

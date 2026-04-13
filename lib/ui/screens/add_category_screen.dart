@@ -5,7 +5,7 @@ import '../../ui/widgets/custom_bottom_nav.dart';
 import '../../services/category_service.dart';
 
 class AddCategoryScreen extends StatefulWidget {
-  const AddCategoryScreen({Key? key}) : super(key: key);
+  const AddCategoryScreen({super.key});
 
   @override
   State<AddCategoryScreen> createState() => _AddCategoryScreenState();
@@ -210,7 +210,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNav(onTabSelected: (index) {}),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 1),
     );
   }
 

@@ -32,7 +32,7 @@ class CategoryService {
       );
 
       if (response.statusCode == 201) {
-        return true; // Sucesso
+        return true;
       } else {
         print('Erro ao cadastrar categoria: ${response.statusCode}');
         return false;

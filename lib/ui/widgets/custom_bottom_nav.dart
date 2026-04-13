@@ -1,72 +1,104 @@
 import 'package:flutter/material.dart';
 import '../app_colors.dart';
+import '../screens/home_screen.dart';
+import '../screens/funko_listing_screen.dart';
 
-class CustomBottomNav extends StatefulWidget {
-  final Function(int) onTabSelected;
+class CustomBottomNav extends StatelessWidget {
+  final int currentIndex;
 
-  const CustomBottomNav({super.key, required this.onTabSelected});
+  const CustomBottomNav({super.key, this.currentIndex = 0});
 
-  @override
-  State<CustomBottomNav> createState() => _CustomBottomNavState();
-}
+  void _navigateWithAnimation(BuildContext context, int index) {
+    if (currentIndex == index) return;
 
-class _CustomBottomNavState extends State<CustomBottomNav> {
-  int _selectedIndex = 0;
+    Widget nextScreen = index == 0
+        ? const HomeScreen()
+        : const FunkoListingScreen();
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    widget.onTabSelected(index);
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 300),
+        pageBuilder: (context, animation, secondaryAnimation) => nextScreen,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const curve = Curves.easeOutCubic;
+          var fadeTween = Tween<double>(
+            begin: 0.0,
+            end: 1.0,
+          ).chain(CurveTween(curve: curve));
+          var scaleTween = Tween<double>(
+            begin: 0.95,
+            end: 1.0,
+          ).chain(CurveTween(curve: curve));
+
+          return FadeTransition(
+            opacity: animation.drive(fadeTween),
+            child: ScaleTransition(
+              scale: animation.drive(scaleTween),
+              child: child,
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
+      height: 75,
+      decoration: const BoxDecoration(
         color: AppColors.background,
-        border: const Border(top: BorderSide(color: Colors.black12, width: 1)),
+        border: Border(top: BorderSide(color: Colors.black, width: 2)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildNavItem(Icons.home_filled, 0),
-          _buildNavItem(Icons.grid_view_rounded, 1),
-          _buildNavItem(Icons.notifications_rounded, 2),
-          _buildNavItem(Icons.settings_rounded, 3),
+          _buildNavItem(context, icon: Icons.home_rounded, index: 0),
+
+          const SizedBox(width: 50),
+
+          _buildNavItem(context, icon: Icons.grid_view_rounded, index: 1),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(IconData icon, int index) {
-    final isSelected = _selectedIndex == index;
+  Widget _buildNavItem(
+    BuildContext context, {
+    required IconData icon,
+    required int index,
+  }) {
+    final isSelected = currentIndex == index;
+
     return GestureDetector(
-      onTap: () => _onItemTapped(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 32,
-            color: isSelected
-                ? AppColors.navIconSelected
-                : AppColors.navIconUnselected,
-          ),
-          if (isSelected)
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              height: 4,
-              width: 20,
-              decoration: BoxDecoration(
-                color: AppColors.navIconSelected,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            )
-          else
-            const SizedBox(height: 8),
-        ],
+      onTap: () => _navigateWithAnimation(context, index),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutBack,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primaryBlue : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: isSelected
+              ? Border.all(color: Colors.black, width: 2)
+              : Border.all(color: Colors.transparent, width: 2),
+          boxShadow: isSelected
+              ? const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    offset: Offset(2, 3),
+                    blurRadius: 0,
+                  ),
+                ]
+              : [],
+        ),
+        child: Icon(
+          icon,
+          size: 30,
+          color: isSelected ? Colors.white : AppColors.textLight,
+        ),
       ),
     );
   }
