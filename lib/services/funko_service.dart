@@ -63,4 +63,47 @@ class FunkoService {
       return false;
     }
   }
+
+  Future<bool> updateFunko(FunkoModel funko) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$_apiUrl/${funko.id}'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          "name": funko.name,
+          "categoryName": funko.categoryName,
+          "number": funko.number,
+          "rarity": funko.rarity,
+          "isGlowInTheDark": funko.isGlowInTheDark,
+          "image": funko.image,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print('Erro ao atualizar: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Erro de conexão no update: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteFunko(String id) async {
+    try {
+      final response = await http.delete(Uri.parse('$_apiUrl/$id'));
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print('Erro ao deletar: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Erro de conexão no delete: $e');
+      return false;
+    }
+  }
 }

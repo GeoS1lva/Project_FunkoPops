@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../app_colors.dart';
 import '../widgets/custom_search_bar.dart';
 import '../widgets/custom_bottom_nav.dart';
+import '../widgets/custom_input.dart';
+import '../widgets/custom_button.dart';
+
 import '../../models/category_model.dart';
 import '../../services/category_service.dart';
 import '../../services/funko_service.dart';
@@ -9,7 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../ui/screens/funko_search_screen.dart';
 
 class AddFunkoScreen extends StatefulWidget {
-  const AddFunkoScreen({Key? key}) : super(key: key);
+  const AddFunkoScreen({super.key});
 
   @override
   State<AddFunkoScreen> createState() => _AddFunkoScreenState();
@@ -18,12 +21,10 @@ class AddFunkoScreen extends StatefulWidget {
 class _AddFunkoScreenState extends State<AddFunkoScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers para os campos de texto
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
 
-  // Variáveis de estado para dropdown e toggles
   String? _selectedCategoryName;
   String _selectedRarity = "1";
   bool _isGlowInTheDark = false;
@@ -55,22 +56,16 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
         );
         return;
       }
-
       setState(() => _isLoading = true);
-
-      final Map<String, dynamic> funkoData = {
+      final success = await _funkoService.createFunko({
         "name": _nameController.text,
         "categoryName": _selectedCategoryName,
         "number": int.tryParse(_numberController.text) ?? 0,
         "rarity": _selectedRarity,
         "isGlowInTheDark": _isGlowInTheDark,
         "image": _imageUrlController.text,
-      };
-
-      final success = await _funkoService.createFunko(funkoData);
-
+      });
       setState(() => _isLoading = false);
-
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -93,24 +88,20 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
   Future<void> _searchImageOnGoogle() async {
     final funkoName = _nameController.text.trim();
     final query = funkoName.isNotEmpty ? '$funkoName funko pop' : 'funko pop';
-
     final url = Uri.parse(
       'https://www.google.com/search?tbm=isch&q=${Uri.encodeComponent(query)}',
     );
-
     try {
-      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication))
         throw Exception('Não foi possível abrir o link');
-      }
     } catch (e) {
-      if (mounted) {
+      if (mounted)
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Erro ao abrir o navegador.'),
             backgroundColor: Colors.red,
           ),
         );
-      }
     }
   }
 
@@ -130,14 +121,36 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const FunkoSearchScreen(),
+                      PageRouteBuilder(
+                        transitionDuration: const Duration(milliseconds: 250),
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const FunkoSearchScreen(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                              const curve = Curves.easeOutCubic;
+
+                              var fadeTween = Tween<double>(
+                                begin: 0.0,
+                                end: 1.0,
+                              ).chain(CurveTween(curve: curve));
+                              var scaleTween = Tween<double>(
+                                begin: 0.96,
+                                end: 1.0,
+                              ).chain(CurveTween(curve: curve));
+
+                              return FadeTransition(
+                                opacity: animation.drive(fadeTween),
+                                child: ScaleTransition(
+                                  scale: animation.drive(scaleTween),
+                                  child: child,
+                                ),
+                              );
+                            },
                       ),
                     );
                   },
                 ),
                 const SizedBox(height: 20),
-
                 const Text(
                   'Novo Pop',
                   style: TextStyle(
@@ -149,10 +162,10 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
                 const SizedBox(height: 16),
 
                 _buildLabel('Nome'),
-                _buildTextField(
-                  _nameController,
-                  AppColors.marvelRed,
-                  'Ex: Spider-Man',
+                CustomInput(
+                  hint: 'Ex: Spider-Man',
+                  controller: _nameController,
+                  fillColor: AppColors.marvelRed,
                 ),
 
                 _buildLabel('Adicionar Imagem *'),
@@ -171,55 +184,17 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
                         color: Colors.black26,
                       ),
                       const SizedBox(height: 12),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.searchTeal.withOpacity(
-                            0.2,
-                          ),
-                          foregroundColor: AppColors.navIconSelected,
-                          elevation: 0,
-                          side: const BorderSide(
-                            color: AppColors.navIconSelected,
-                            width: 2,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          minimumSize: const Size(double.infinity, 45),
-                        ),
+                      CustomButton(
+                        text: 'Buscar no Google',
+                        color: AppColors.searchTeal,
+                        textColor: Colors.white,
                         onPressed: _searchImageOnGoogle,
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.search),
-                            SizedBox(width: 8),
-                            Text(
-                              'Buscar no Google',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
-                      const SizedBox(height: 8),
-                      TextFormField(
+                      const SizedBox(height: 12),
+                      CustomInput(
+                        hint: 'Link da Imagem (Ex: https://...)',
                         controller: _imageUrlController,
-                        decoration: InputDecoration(
-                          hintText: 'Link da Imagem (Ex: https://...)',
-                          filled: true,
-                          fillColor: AppColors.searchTeal,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                          ),
-                        ),
-                        validator: (value) =>
-                            value!.isEmpty ? 'Insira a URL da imagem' : null,
+                        fillColor: AppColors.searchTeal,
                       ),
                     ],
                   ),
@@ -230,12 +205,9 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
                 FutureBuilder<List<CategoryModel>>(
                   future: _categoriesFuture,
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    if (snapshot.connectionState == ConnectionState.waiting)
                       return const Center(child: CircularProgressIndicator());
-                    }
-
                     final categories = snapshot.data ?? [];
-
                     return DropdownButtonFormField<String>(
                       isExpanded: true,
                       decoration: InputDecoration(
@@ -271,54 +243,34 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
                         ),
                       ),
                       value: _selectedCategoryName,
-                      items: categories.isEmpty
-                          ? [
-                              const DropdownMenuItem(
-                                value: null,
-                                child: Padding(
-                                  padding: EdgeInsets.only(left: 16.0),
-                                  child: Text(
-                                    'Cadastre uma categoria primeiro',
-                                  ),
+                      items: categories
+                          .map(
+                            (c) => DropdownMenuItem(
+                              value: c.name,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 16.0),
+                                child: Text(
+                                  c.name,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                            ]
-                          : categories
-                                .map(
-                                  (c) => DropdownMenuItem(
-                                    value: c.name,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 16.0,
-                                      ),
-                                      child: Text(
-                                        c.name,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCategoryName = value;
-                        });
-                      },
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) =>
+                          setState(() => _selectedCategoryName = value),
                     );
                   },
                 ),
                 const SizedBox(height: 16),
 
-                // Campo: Número
                 _buildLabel('Número *'),
-                _buildTextField(
-                  _numberController,
-                  AppColors.tealInput,
-                  'Ex: 50',
-                  isNumber: true,
+                CustomInput(
+                  hint: 'Ex: 50',
+                  controller: _numberController,
+                  fillColor: AppColors.tealInput,
                 ),
 
-                // Campo: Raridade
                 _buildLabel('Raridade'),
                 Row(
                   children: [
@@ -342,7 +294,7 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
                     ),
                     Switch(
                       value: _isGlowInTheDark,
-                      activeColor: Colors.white,
+                      activeThumbColor: Colors.white,
                       activeTrackColor: AppColors.navIconSelected,
                       inactiveThumbColor: Colors.white,
                       inactiveTrackColor: Colors.grey,
@@ -357,16 +309,18 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : Column(
                         children: [
-                          _buildActionButton(
-                            'Salvar',
-                            AppColors.purpleButton,
-                            _submitForm,
+                          CustomButton(
+                            text: 'Salvar',
+                            color: AppColors.purpleButton,
+                            textColor: Colors.white,
+                            onPressed: _submitForm,
                           ),
                           const SizedBox(height: 12),
-                          _buildActionButton(
-                            'Voltar',
-                            AppColors.purpleButton,
-                            () => Navigator.pop(context),
+                          CustomButton(
+                            text: 'Voltar',
+                            color: AppColors.purpleButton,
+                            textColor: Colors.white,
+                            onPressed: () => Navigator.pop(context),
                           ),
                         ],
                       ),
@@ -376,7 +330,7 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNav(onTabSelected: (index) {}),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 1),
     );
   }
 
@@ -391,32 +345,6 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
           color: AppColors.purpleText,
         ),
       ),
-    );
-  }
-
-  Widget _buildTextField(
-    TextEditingController controller,
-    Color fillColor,
-    String hint, {
-    bool isNumber = false,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      decoration: InputDecoration(
-        hintText: hint,
-        filled: true,
-        fillColor: fillColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.black26),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
-      ),
-      validator: (value) => value!.isEmpty ? 'Campo obrigatório' : null,
     );
   }
 
@@ -442,30 +370,6 @@ class _AddFunkoScreenState extends State<AddFunkoScreen> {
                 color: AppColors.textDark,
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButton(String text, Color color, VoidCallback onPressed) {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        onPressed: onPressed,
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
           ),
         ),
       ),

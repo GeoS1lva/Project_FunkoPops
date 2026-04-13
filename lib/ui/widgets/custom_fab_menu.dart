@@ -5,7 +5,7 @@ import '../screens/add_funko_screen.dart';
 import '../screens/add_category_screen.dart';
 
 class CustomFabMenu extends StatefulWidget {
-  const CustomFabMenu({Key? key}) : super(key: key);
+  const CustomFabMenu({super.key});
 
   @override
   State<CustomFabMenu> createState() => _CustomFabMenuState();
@@ -79,8 +79,7 @@ class _CustomFabMenuState extends State<CustomFabMenu>
                     icon: Icons.category_outlined,
                     color: AppColors.marvelRed,
                     onTap: () {
-                      Navigator.pop(context); // Fecha a caixinha
-                      // NAVEGAÇÃO ADICIONADA AQUI
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
