@@ -139,16 +139,6 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
 
                   const SizedBox(height: 15),
-
-                  if (!_isLoading)
-                    CustomButton(
-                      text: 'Novo Usuário',
-                      color: AppColors.accentYellow,
-                      textColor: Colors.black,
-                      onPressed: () {},
-                    ),
-
-                  const SizedBox(height: 30),
                 ],
               ),
             ),

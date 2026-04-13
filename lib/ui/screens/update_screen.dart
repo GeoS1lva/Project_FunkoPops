@@ -393,6 +393,12 @@ class _UpdateScreenState extends State<UpdateScreen> {
                             onPressed: _submitForm,
                           ),
                           const SizedBox(height: 12),
+                          CustomButton(
+                            text: 'Voltar',
+                            color: Colors.white,
+                            textColor: AppColors.purpleText,
+                            onPressed: () => Navigator.pop(context),
+                          ),
                         ],
                       ),
                 const SizedBox(height: 20),

@@ -108,20 +108,48 @@ class _FunkoSearchScreenState extends State<FunkoSearchScreen> {
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(25),
-                        border: Border.all(color: AppColors.textDark, width: 2),
-                        color: Colors.white,
+                        border: Border.all(
+                          color: AppColors.navIconUnselected,
+                          width: 2,
+                        ),
+                        gradient: const LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          stops: [0.0, 0.25, 0.25, 0.50, 0.50, 0.75, 0.75, 1.0],
+                          colors: [
+                            AppColors.searchPurple,
+                            AppColors.searchPurple,
+                            AppColors.searchRed,
+                            AppColors.searchRed,
+                            AppColors.searchYellow,
+                            AppColors.searchYellow,
+                            AppColors.searchTeal,
+                            AppColors.searchTeal,
+                          ],
+                        ),
                       ),
                       child: TextField(
                         controller: _searchController,
                         autofocus: true,
                         onChanged: _filterFunkos,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: AppColors.navIconUnselected,
+                          fontWeight: FontWeight.w500,
+                        ),
                         decoration: const InputDecoration(
-                          hintText: 'Buscar Pop...',
+                          hintText: 'Busca',
+                          hintStyle: TextStyle(
+                            fontSize: 18,
+                            color: AppColors.navIconUnselected,
+                            fontWeight: FontWeight.w500,
+                          ),
                           border: InputBorder.none,
                           prefixIcon: Icon(
                             Icons.search,
-                            color: AppColors.textLight,
+                            color: AppColors.navIconUnselected,
                           ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 13),
                         ),
                       ),
                     ),
@@ -129,15 +157,25 @@ class _FunkoSearchScreenState extends State<FunkoSearchScreen> {
                 ],
               ),
             ),
+
             Expanded(
               child: _isLoading
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: AppColors.marvelRed,
+                        color: AppColors.searchRed,
                       ),
                     )
                   : _filteredFunkos.isEmpty
-                  ? const Center(child: Text('Nenhum Funko encontrado.'))
+                  ? const Center(
+                      child: Text(
+                        'Nenhum Funko encontrado.',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: AppColors.navIconUnselected,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
                   : ListView.builder(
                       padding: const EdgeInsets.only(bottom: 20),
                       itemCount: _filteredFunkos.length,
@@ -155,7 +193,9 @@ class _FunkoSearchScreenState extends State<FunkoSearchScreen> {
                               ),
                             ).then((_) => _loadAllFunkos());
                           },
-                          onDeleteTap: () => _showDeleteDialog(context, funko),
+                          onDeleteTap: () {
+                            _showDeleteDialog(context, funko);
+                          },
                         );
                       },
                     ),

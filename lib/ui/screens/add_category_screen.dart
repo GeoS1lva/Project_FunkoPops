@@ -4,6 +4,8 @@ import '../app_colors.dart';
 import '../../ui/widgets/custom_bottom_nav.dart';
 import '../../services/category_service.dart';
 
+import '../widgets/custom_button.dart';
+
 class AddCategoryScreen extends StatefulWidget {
   const AddCategoryScreen({super.key});
 
@@ -108,10 +110,10 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                 const SizedBox(height: 24),
 
                 _buildLabel('Nome da Categoria *'),
-                _buildTextField(
-                  _nameController,
-                  AppColors.marvelRed,
-                  'Ex: Marvel, Star Wars',
+                _buildStyledTextField(
+                  controller: _nameController,
+                  fillColor: AppColors.marvelRed,
+                  hint: 'Ex: Marvel, Star Wars',
                 ),
                 const SizedBox(height: 20),
 
@@ -120,8 +122,11 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: AppColors.background,
-                    border: Border.all(color: Colors.black12),
+                    border: Border.all(color: Colors.black, width: 2),
                     borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black12, offset: Offset(2, 3)),
+                    ],
                   ),
                   child: Column(
                     children: [
@@ -166,22 +171,11 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      TextFormField(
+                      _buildStyledTextField(
                         controller: _imageUrlController,
-                        decoration: InputDecoration(
-                          hintText: 'Link da Imagem (Ex: https://...)',
-                          filled: true,
-                          fillColor: AppColors.searchTeal,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                          ),
-                        ),
-                        validator: (value) =>
-                            value!.isEmpty ? 'Insira a URL da imagem' : null,
+                        fillColor: AppColors.searchTeal,
+                        hint: 'Link da Imagem (Ex: https://...)',
+                        isUrl: true,
                       ),
                     ],
                   ),
@@ -189,19 +183,25 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
 
                 const SizedBox(height: 40),
                 _isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.purpleButton,
+                        ),
+                      )
                     : Column(
                         children: [
-                          _buildActionButton(
-                            'Salvar Categoria',
-                            AppColors.purpleButton,
-                            _submitForm,
+                          CustomButton(
+                            text: 'Salvar Categoria',
+                            color: AppColors.purpleButton,
+                            textColor: Colors.white,
+                            onPressed: _submitForm,
                           ),
                           const SizedBox(height: 12),
-                          _buildActionButton(
-                            'Voltar',
-                            AppColors.purpleButton,
-                            () => Navigator.pop(context),
+                          CustomButton(
+                            text: 'Voltar',
+                            color: Colors.white,
+                            textColor: AppColors.purpleText,
+                            onPressed: () => Navigator.pop(context),
                           ),
                         ],
                       ),
@@ -228,51 +228,46 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
     );
   }
 
-  Widget _buildTextField(
-    TextEditingController controller,
-    Color fillColor,
-    String hint,
-  ) {
+  Widget _buildStyledTextField({
+    required TextEditingController controller,
+    required Color fillColor,
+    required String hint,
+    bool isUrl = false,
+  }) {
     return TextFormField(
       controller: controller,
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
+        color: Colors.black87,
+      ),
       decoration: InputDecoration(
         hintText: hint,
+        hintStyle: const TextStyle(
+          color: Colors.black54,
+          fontWeight: FontWeight.bold,
+        ),
         filled: true,
         fillColor: fillColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.black26),
+          borderSide: const BorderSide(color: Colors.black, width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.black, width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.black, width: 3),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 12,
         ),
       ),
-      validator: (value) => value!.isEmpty ? 'Campo obrigatório' : null,
-    );
-  }
-
-  Widget _buildActionButton(String text, Color color, VoidCallback onPressed) {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        onPressed: onPressed,
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ),
+      validator: (value) => value!.isEmpty
+          ? (isUrl ? 'Insira a URL da imagem' : 'Campo obrigatório')
+          : null,
     );
   }
 }
