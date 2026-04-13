@@ -64,25 +64,66 @@ class _FunkoListingScreenState extends State<FunkoListingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isFiltering = widget.categoryFilter != null;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Padding(
+              padding: EdgeInsets.all(20.0),
+              child: CustomSearchBar(),
+            ),
+
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 20.0,
-                vertical: 10.0,
+                vertical: 8.0,
               ),
-              child: CustomSearchBar(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const FunkoSearchScreen(),
+              child: Row(
+                children: [
+                  if (isFiltering) ...[
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: AppColors.searchTeal.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.searchTeal,
+                            width: 2,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: AppColors.textDark,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                  ],
+                  Expanded(
+                    child: Text(
+                      isFiltering
+                          ? 'Pops: ${widget.categoryFilter}'
+                          : 'Listagem de Pops',
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textDark,
+                        height: 1.1,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
+            const SizedBox(height: 8),
             Expanded(
               child: FutureBuilder<List<FunkoModel>>(
                 future: _allFunkosFuture,
