@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/category_model.dart'; // Ajuste o caminho se necessário
+import '../models/category_model.dart';
 
 class CategoryService {
   static const String _apiUrl =
@@ -20,6 +20,26 @@ class CategoryService {
       }
     } catch (e) {
       throw Exception('Erro de conexão: $e');
+    }
+  }
+
+  Future<bool> createCategory(Map<String, dynamic> categoryData) async {
+    try {
+      final response = await http.post(
+        Uri.parse(_apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(categoryData),
+      );
+
+      if (response.statusCode == 201) {
+        return true; // Sucesso
+      } else {
+        print('Erro ao cadastrar categoria: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Erro de conexão: $e');
+      return false;
     }
   }
 }
